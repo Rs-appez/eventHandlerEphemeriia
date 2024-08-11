@@ -12,7 +12,7 @@ import requests
 import json
 
 from decouple import config
-from .utils import write_log
+from utils import write_log
 
 
 class TwitchHandler:

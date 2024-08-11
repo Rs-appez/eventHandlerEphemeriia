@@ -2,11 +2,13 @@ FROM python:3.10.12-slim-bookworm
 
 ENV TZ="Europe/Brussels"
 
-WORKDIR /eventHandler
+WORKDIR /app
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY . /eventHandler/
+COPY . /app/
 
-CMD ["gunicorn", "--bind", ":8080", "--workers", "2", "eventHandler.app:app"]
+WORKDIR /app/eventHandler
+
+CMD ["python", "main.py"]

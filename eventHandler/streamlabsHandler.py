@@ -3,7 +3,7 @@ from decouple import config
 import requests
 import socketio
 
-from .utils import write_log
+from utils import write_log
 
 class StreamlabsHandler:
     def __init__(self):
