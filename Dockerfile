@@ -12,4 +12,5 @@ FROM python:3.10.12-slim-bookworm
 WORKDIR /app
 COPY --from=builder /app/.venv .venv/
 COPY . .
+WORKDIR /app/eventHandler
 CMD ["/app/.venv/bin/flask", "run", "--host=0.0.0.0", "--port=8080"]
