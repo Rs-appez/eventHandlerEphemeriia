@@ -19,7 +19,7 @@ class TwitchHandler:
     def __init__(self):
         self.app_id = config("TWITCH_APP_ID")
         self.app_secret = config("TWITCH_APP_SECRET")
-        self.backend_URL = f"http://{config('BACKEND_URL')}:8000"
+        self.backend_URL = f"http://{config('BACKEND_URL')}"
         self.token = config("BACKEND_TOKEN")
 
         self.twich_access_json = self.get_twitch_auth()

@@ -9,7 +9,7 @@ class StreamlabsHandler:
     def __init__(self):
         self.app_id = config("STREAMLABS_CLIENT_ID")
         self.app_secret = config("STREAMLABS_CLIENT_SECRET")
-        self.backend_URL = f"http://{config('BACKEND_URL')}:8000"
+        self.backend_URL = f"http://{config('BACKEND_URL')}"
         self.token = config("BACKEND_TOKEN")
 
         self.streamlabs_access_json = self.get_streamlabs_auth()
