@@ -1,5 +1,5 @@
 # import sys
-# import os
+import os
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import Flask
@@ -9,16 +9,17 @@ from eventHandler.streamlabsHandler import StreamlabsHandler
 import threading
 import asyncio
 
-app = Flask(__name__)
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    app = Flask(__name__)
 
 
-ta = TwitchHandler()
+    ta = TwitchHandler()
 
-ta_thread =  threading.Thread(target=asyncio.run, args=(ta.run(),))
-ta_thread.start()
+    ta_thread =  threading.Thread(target=asyncio.run, args=(ta.run(),))
+    ta_thread.start()
 
-sa = StreamlabsHandler()
-sa.run()
+    sa = StreamlabsHandler()
+    sa.run()
 
 
 
