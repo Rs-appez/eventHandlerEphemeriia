@@ -20,5 +20,6 @@ six==1.16.0
 twitchAPI==4.2.1
 typing_extensions==4.12.2
 urllib3==2.2.2
+websocket-client==1.8.0
 wsproto==1.2.0
 yarl==1.9.4
