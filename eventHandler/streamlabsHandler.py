@@ -51,7 +51,7 @@ class StreamlabsHandler:
         )
 
                
-    def run(self):
+    async def run(self):
         sio = socketio.Client()
 
         @sio.event

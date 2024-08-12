@@ -1,18 +1,17 @@
 from twitchHandler import TwitchHandler
 from streamlabsHandler import StreamlabsHandler
 
-import threading
 import asyncio
 
+async def main():
+    ta = TwitchHandler()
+    sa = StreamlabsHandler()
 
+    # Run both handlers concurrently
+    await asyncio.gather(
+        ta.run(),
+        sa.run()
+    )
 
-ta = TwitchHandler()
-
-ta_thread =  threading.Thread(target=asyncio.run, args=(ta.run(),))
-ta_thread.start()
-
-sa = StreamlabsHandler()
-sa.run()
-
-
-
+if __name__ == "__main__":
+    asyncio.run(main())
