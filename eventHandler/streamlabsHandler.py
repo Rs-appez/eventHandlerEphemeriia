@@ -50,6 +50,45 @@ class StreamlabsHandler:
             headers={"Authorization": self.token},
         )
 
+    def on_subscription(self, data ):
+        # our event happend, lets do things with the data we got!
+
+        name = data['message'][0]['name']
+        tier_plan = data['message'][0]['sub_plan']
+        id = data['event_id']
+
+        print(
+            f"\n{name} now subscribes !"
+        )
+        write_log(f"{name} now subscribes !")
+
+        match tier_plan:
+            case "1000":
+                print("Tier 1")
+                tier = 1
+            case "2000":
+                print("Tier 2")
+                tier = 2
+            case "3000":
+                print("Tier 3")
+                tier = 3
+            case _:
+                print("Prime")
+                tier = 1
+
+        print("-" * 100)
+
+        res = requests.post(
+            f"{self.backend_URL}/api/timer/sub/",
+            headers={"Authorization": self.token},
+            json={
+                "username": name,
+                "tier": tier,
+                "id" : id
+            },
+        )
+
+        print(res.json())
                
     async def run(self):
         sio = socketio.Client()
@@ -72,8 +111,7 @@ class StreamlabsHandler:
                 self.on_donation(data)
 
             if data['type'] == 'subscription':
-                print("Subscription", data)
-                print("-" * 100)
+                self.on_subscription(data)
 
         sio.connect(self.streamlab_url_socket, transports='websocket')
 

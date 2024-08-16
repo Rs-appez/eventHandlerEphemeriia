@@ -88,7 +88,6 @@ class TwitchHandler:
         )
         print(data.event)
         write_log(f"{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!")
-        write_log(f"Data : {data.subscription.id}")
 
         match data.event.tier:
             case "1000":
@@ -168,7 +167,7 @@ class TwitchHandler:
         await eventsub.listen_channel_follow_v2(user.id, user.id, self.on_follow)
         await eventsub.listen_channel_subscribe(user.id, self.on_subscription)
         await eventsub.listen_channel_subscription_message(user.id, self.on_subscription_message)
-        # await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
+        await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
         await eventsub.listen_channel_cheer(user.id, self.on_cheer)
 
 
