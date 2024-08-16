@@ -55,7 +55,7 @@ class StreamlabsHandler:
 
         name = data['message'][0]['name']
         tier_plan = data['message'][0]['sub_plan']
-        id = data['event_id']
+        id = data['message'][0]['_id']
 
         print(
             f"\n{name} now subscribes !"
