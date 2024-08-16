@@ -3,6 +3,7 @@ from twitchAPI.object.eventsub import (
     ChannelFollowEvent,
     ChannelSubscribeEvent,
     ChannelCheerEvent,
+    ChannelSubscriptionMessageEvent,
 )
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.helper import first
@@ -50,7 +51,7 @@ class TwitchHandler:
         )
         print(data.event)
         write_log(f"{data.event.user_name} now subscribes to {data.event.broadcaster_user_name}!")
-        write_log(f"Data : {data}")
+        write_log(f"Data : {data.subscription.id}")
 
         match data.event.tier:
             case "1000":
@@ -68,7 +69,7 @@ class TwitchHandler:
 
         print("-" * 100)
 
-        requests.post(
+        res = requests.post(
             f"{self.backend_URL}/api/timer/sub/",
             headers={"Authorization": self.token},
             json={
@@ -77,6 +78,45 @@ class TwitchHandler:
                 "id" : data.subscription.id
             },
         )
+
+        print(res.json())
+
+    async def on_subscription_message(self, data: ChannelSubscriptionMessageEvent):
+        # our event happend, lets do things with the data we got!
+        print(
+            f"\n{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!"
+        )
+        print(data.event)
+        write_log(f"{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!")
+        write_log(f"Data : {data.subscription.id}")
+
+        match data.event.tier:
+            case "1000":
+                print("Tier 1")
+                tier = 1
+            case "2000":
+                print("Tier 2")
+                tier = 2
+            case "3000":
+                print("Tier 3")
+                tier = 3
+            case _:
+                print("Prime")
+                tier = 1
+
+        print("-" * 100)
+
+        res = requests.post(
+            f"{self.backend_URL}/api/timer/sub/",
+            headers={"Authorization": self.token},
+            json={
+                "username": data.event.user_name,
+                "tier": tier,
+                "id" : data.subscription.id
+            },
+        )
+
+        print(res.json())
 
     async def on_cheer(self, data: ChannelCheerEvent):
         # our event happend, lets do things with the data we got!
@@ -127,6 +167,7 @@ class TwitchHandler:
         # We have to subscribe to the first topic within 10 seconds of eventsub.start() to not be disconnected.
         await eventsub.listen_channel_follow_v2(user.id, user.id, self.on_follow)
         await eventsub.listen_channel_subscribe(user.id, self.on_subscription)
+        await eventsub.listen_channel_subscription_message(user.id, self.on_subscription_message)
         # await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
         await eventsub.listen_channel_cheer(user.id, self.on_cheer)
 

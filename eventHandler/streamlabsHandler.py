@@ -71,5 +71,9 @@ class StreamlabsHandler:
             if data['type'] == 'donation':
                 self.on_donation(data)
 
+            if data['type'] == 'subscription':
+                print("Subscription", data)
+                print("-" * 100)
+
         sio.connect(self.streamlab_url_socket, transports='websocket')
 
