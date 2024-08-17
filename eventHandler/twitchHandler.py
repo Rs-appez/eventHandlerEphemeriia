@@ -126,7 +126,7 @@ class TwitchHandler:
         print("-" * 100)
         write_log(f"{data.event.user_name} cheered {data.event.bits} bits to {data.event.broadcaster_user_name}!")
 
-        requests.post(
+        res = requests.post(
             f"{self.backend_URL}/api/timer/bits/",
             headers={"Authorization": self.token},
             json={
@@ -135,6 +135,18 @@ class TwitchHandler:
                 "id": data.subscription.id
             },
         )
+
+        # if the request is not successful, retry
+        if res.status_code != 200 and res.status_code != 400:
+            res = requests.post(
+                f"{self.backend_URL}/api/timer/bits/",
+                headers={"Authorization": self.token},
+                json={
+                    "username": data.event.user_name,
+                    "bits": data.event.bits,
+                    "id": data.subscription.id
+                },
+            )
 
     async def run(self):
         print("Starting...")

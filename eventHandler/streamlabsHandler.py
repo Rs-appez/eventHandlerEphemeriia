@@ -40,7 +40,7 @@ class StreamlabsHandler:
         print("-" * 100)
         write_log(f"{name} donated {amount}!")
 
-        requests.post(
+        res = requests.post(
             f"{self.backend_URL}/api/timer/donation/",
             json={
                 "name": name,
@@ -49,6 +49,18 @@ class StreamlabsHandler:
             },
             headers={"Authorization": self.token},
         )
+        
+        # if the request is not successful, retry
+        if res.status_code != 200 and res.status_code != 400:
+            res = requests.post(
+            f"{self.backend_URL}/api/timer/donation/",
+            json={
+                "name": name,
+                "amount": amount,
+                "id": id
+            },
+            headers={"Authorization": self.token},
+            )
 
     def on_subscription(self, data ):
         # our event happend, lets do things with the data we got!
@@ -88,7 +100,17 @@ class StreamlabsHandler:
             },
         )
 
-        print(res.json())
+        # if the request is not successful, retry
+        if res.status_code != 200 and res.status_code != 400:
+            res = requests.post(
+                f"{self.backend_URL}/api/timer/sub/",
+                headers={"Authorization": self.token},
+                json={
+                    "username": name,
+                    "tier": tier,
+                    "id" : id
+                },
+            )
                
     async def run(self):
         sio = socketio.Client()
