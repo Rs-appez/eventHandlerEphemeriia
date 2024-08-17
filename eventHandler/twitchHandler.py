@@ -165,8 +165,8 @@ class TwitchHandler:
         # the broadcaster is a moderator in their own channel by default so specifying both as the same works in this example
         # We have to subscribe to the first topic within 10 seconds of eventsub.start() to not be disconnected.
         await eventsub.listen_channel_follow_v2(user.id, user.id, self.on_follow)
-        await eventsub.listen_channel_subscribe(user.id, self.on_subscription)
-        await eventsub.listen_channel_subscription_message(user.id, self.on_subscription_message)
+        # await eventsub.listen_channel_subscribe(user.id, self.on_subscription)
+        # await eventsub.listen_channel_subscription_message(user.id, self.on_subscription_message)
         # await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
         await eventsub.listen_channel_cheer(user.id, self.on_cheer)
 
