@@ -1,5 +1,5 @@
 def write_log(msg):
-    with open("log.txt", "a") as f:
+    with open("logs/log.txt", "a") as f:
         f.write("\n")
         f.write(msg)
         f.write("\n")
