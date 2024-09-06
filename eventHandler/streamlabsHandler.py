@@ -111,6 +111,39 @@ class StreamlabsHandler:
                     "id" : id
                 },
             )
+
+    def on_cheer(self, data):
+        name = data['message'][0]['name']
+        amount = data['message'][0]['amount']
+        id = data['message'][0]['_id']
+
+        print(
+            f"\n{name} cheered {amount} bits!"
+        )
+        print("-" * 100)
+        write_log(f"{name} cheered {amount} bits!")
+
+        res = requests.post(
+            f"{self.backend_URL}/api/timer/bits/",
+            headers={"Authorization": self.token},
+            json={
+                "username": name,
+                "bits": amount,
+                "id": id
+            },
+        )
+
+        # if the request is not successful, retry
+        if res.status_code != 200 and res.status_code != 400:
+            res = requests.post(
+                f"{self.backend_URL}/api/timer/bits/",
+                headers={"Authorization": self.token},
+                json={
+                    "username": name,
+                    "bits": amount,
+                    "id": id
+                },
+            )
                
     async def run(self):
         sio = socketio.Client()
@@ -134,6 +167,9 @@ class StreamlabsHandler:
 
             if data['type'] == 'subscription':
                 self.on_subscription(data)
+
+            if data['type'] == 'bits':
+                self.on_cheer(data)
 
         sio.connect(self.streamlab_url_socket, transports='websocket')
 

@@ -180,7 +180,7 @@ class TwitchHandler:
         # await eventsub.listen_channel_subscribe(user.id, self.on_subscription)
         # await eventsub.listen_channel_subscription_message(user.id, self.on_subscription_message)
         # await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
-        await eventsub.listen_channel_cheer(user.id, self.on_cheer)
+        # await eventsub.listen_channel_cheer(user.id, self.on_cheer)
 
 
         # eventsub will run in its own process
