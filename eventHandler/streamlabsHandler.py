@@ -68,11 +68,8 @@ class StreamlabsHandler:
         name = data['message'][0]['name']
         tier_plan = data['message'][0]['sub_plan']
         id = data['message'][0]['_id']
+        gifter = data['message'][0]['gifter'] if 'gifter' in data['message'][0] else ""
 
-        print(
-            f"\n{name} now subscribes !"
-        )
-        write_log(f"{name} now subscribes !")
 
         match tier_plan:
             case "1000":
@@ -96,7 +93,8 @@ class StreamlabsHandler:
             json={
                 "username": name,
                 "tier": tier,
-                "id" : id
+                "id" : id,
+                "gifter": gifter
             },
         )
 
@@ -108,7 +106,8 @@ class StreamlabsHandler:
                 json={
                     "username": name,
                     "tier": tier,
-                    "id" : id
+                    "id" : id,
+                    "gifter": gifter
                 },
             )
 
