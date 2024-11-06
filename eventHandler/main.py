@@ -10,7 +10,7 @@ async def main():
     # Run both handlers concurrently
     await asyncio.gather(
         ta.run(),
-        sa.run()
+        # sa.run()
     )
 
 if __name__ == "__main__":

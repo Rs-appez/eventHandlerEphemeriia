@@ -1,9 +1,7 @@
 from twitchAPI.twitch import Twitch
 from twitchAPI.object.eventsub import (
     ChannelFollowEvent,
-    ChannelSubscribeEvent,
-    ChannelCheerEvent,
-    ChannelSubscriptionMessageEvent,
+    ChannelPredictionEvent
 )
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.helper import first
@@ -44,109 +42,10 @@ class TwitchHandler:
         print("-" * 100)
         write_log(f"{data.event.user_name} now follows {data.event.broadcaster_user_name}!")
 
-    async def on_subscription(self, data: ChannelSubscribeEvent):
+    async def on_prediction_start(self, data: ChannelPredictionEvent):
         # our event happend, lets do things with the data we got!
-        print(
-            f"\n{data.event.user_name} now subscribes to {data.event.broadcaster_user_name}!"
-        )
-        print(data.event)
-        write_log(f"{data.event.user_name} now subscribes to {data.event.broadcaster_user_name}!")
-        write_log(f"Data : {data.subscription.id}")
-
-        match data.event.tier:
-            case "1000":
-                print("Tier 1")
-                tier = 1
-            case "2000":
-                print("Tier 2")
-                tier = 2
-            case "3000":
-                print("Tier 3")
-                tier = 3
-            case _:
-                print("Prime")
-                tier = 1
-
-        print("-" * 100)
-
-        res = requests.post(
-            f"{self.backend_URL}/api/timer/sub/",
-            headers={"Authorization": self.token},
-            json={
-                "username": data.event.user_name,
-                "tier": tier,
-                "id" : data.subscription.id
-            },
-        )
-
-        print(res.json())
-
-    async def on_subscription_message(self, data: ChannelSubscriptionMessageEvent):
-        # our event happend, lets do things with the data we got!
-        print(
-            f"\n{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!"
-        )
-        print(data.event)
-        write_log(f"{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!")
-
-        match data.event.tier:
-            case "1000":
-                print("Tier 1")
-                tier = 1
-            case "2000":
-                print("Tier 2")
-                tier = 2
-            case "3000":
-                print("Tier 3")
-                tier = 3
-            case _:
-                print("Prime")
-                tier = 1
-
-        print("-" * 100)
-
-        res = requests.post(
-            f"{self.backend_URL}/api/timer/sub/",
-            headers={"Authorization": self.token},
-            json={
-                "username": data.event.user_name,
-                "tier": tier,
-                "id" : data.subscription.id
-            },
-        )
-
-        print(res.json())
-
-    async def on_cheer(self, data: ChannelCheerEvent):
-        # our event happend, lets do things with the data we got!
-        print(
-            f"\n{data.event.user_name} cheered {data.event.bits} bits to {data.event.broadcaster_user_name}!"
-        )
-        print(data.event)
-        print("-" * 100)
-        write_log(f"{data.event.user_name} cheered {data.event.bits} bits to {data.event.broadcaster_user_name}!")
-
-        res = requests.post(
-            f"{self.backend_URL}/api/timer/bits/",
-            headers={"Authorization": self.token},
-            json={
-                "username": data.event.user_name,
-                "bits": data.event.bits,
-                "id": data.subscription.id
-            },
-        )
-
-        # if the request is not successful, retry
-        if res.status_code != 200 and res.status_code != 400:
-            res = requests.post(
-                f"{self.backend_URL}/api/timer/bits/",
-                headers={"Authorization": self.token},
-                json={
-                    "username": data.event.user_name,
-                    "bits": data.event.bits,
-                    "id": data.subscription.id
-                },
-            )
+ 
+        write_log(f"Predi start! {data.event.to_dict(True)}!")
 
     async def run(self):
         print("Starting...")
@@ -177,11 +76,8 @@ class TwitchHandler:
         # the broadcaster is a moderator in their own channel by default so specifying both as the same works in this example
         # We have to subscribe to the first topic within 10 seconds of eventsub.start() to not be disconnected.
         await eventsub.listen_channel_follow_v2(user.id, user.id, self.on_follow)
-        # await eventsub.listen_channel_subscribe(user.id, self.on_subscription)
-        # await eventsub.listen_channel_subscription_message(user.id, self.on_subscription_message)
-        # await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
-        # await eventsub.listen_channel_cheer(user.id, self.on_cheer)
-
+        await eventsub.listen_channel_prediction_begin(user.id, self.on_prediction_start)
+        
 
         # eventsub will run in its own process
         # so lets just wait for user input before shutting it all down again
