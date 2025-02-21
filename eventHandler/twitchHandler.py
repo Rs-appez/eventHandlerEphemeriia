@@ -20,7 +20,8 @@ class TwitchHandler:
     def __init__(self):
         self.app_id = config("TWITCH_APP_ID")
         self.app_secret = config("TWITCH_APP_SECRET")
-        self.backend_URL = f"{config('BACKEND_URL')}/timer"
+        self.backend_URL = f"{config('BACKEND_URL')}"
+        self.timer_URL = f"{self.backend_URL}/timer/api/timer/"
         self.token = config("BACKEND_TOKEN")
 
         self.twich_access_json = self.get_twitch_auth()
@@ -74,7 +75,7 @@ class TwitchHandler:
         print("-" * 100)
 
         res = requests.post(
-            f"{self.backend_URL}/api/timer/sub/",
+            f"{self.timer_URL}/sub/",
             headers={"Authorization": self.token},
             json={
                 "username": data.event.user_name,
@@ -112,7 +113,7 @@ class TwitchHandler:
         print("-" * 100)
 
         res = requests.post(
-            f"{self.backend_URL}/api/timer/sub/",
+            f"{self.timer_URL}/sub/",
             headers={"Authorization": self.token},
             json={
                 "username": data.event.user_name,
@@ -135,7 +136,7 @@ class TwitchHandler:
         )
 
         res = requests.post(
-            f"{self.backend_URL}/api/timer/bits/",
+            f"{self.timer_URL}/bits/",
             headers={"Authorization": self.token},
             json={
                 "username": data.event.user_name,
