@@ -20,7 +20,7 @@ class TwitchHandler:
     def __init__(self):
         self.app_id = config("TWITCH_APP_ID")
         self.app_secret = config("TWITCH_APP_SECRET")
-        self.backend_URL = f"{config('BACKEND_URL')}"
+        self.backend_URL = f"{config('BACKEND_URL')}/timer"
         self.token = config("BACKEND_TOKEN")
 
         self.twich_access_json = self.get_twitch_auth()
@@ -42,7 +42,9 @@ class TwitchHandler:
             f"\n{data.event.user_name} now follows {data.event.broadcaster_user_name}!"
         )
         print("-" * 100)
-        write_log(f"{data.event.user_name} now follows {data.event.broadcaster_user_name}!")
+        write_log(
+            f"{data.event.user_name} now follows {data.event.broadcaster_user_name}!"
+        )
 
     async def on_subscription(self, data: ChannelSubscribeEvent):
         # our event happend, lets do things with the data we got!
@@ -50,7 +52,9 @@ class TwitchHandler:
             f"\n{data.event.user_name} now subscribes to {data.event.broadcaster_user_name}!"
         )
         print(data.event)
-        write_log(f"{data.event.user_name} now subscribes to {data.event.broadcaster_user_name}!")
+        write_log(
+            f"{data.event.user_name} now subscribes to {data.event.broadcaster_user_name}!"
+        )
         write_log(f"Data : {data.subscription.id}")
 
         match data.event.tier:
@@ -75,7 +79,7 @@ class TwitchHandler:
             json={
                 "username": data.event.user_name,
                 "tier": tier,
-                "id" : data.subscription.id
+                "id": data.subscription.id,
             },
         )
 
@@ -87,7 +91,9 @@ class TwitchHandler:
             f"\n{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!"
         )
         print(data.event)
-        write_log(f"{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!")
+        write_log(
+            f"{data.event.user_name} now resubscribes to {data.event.broadcaster_user_name}!"
+        )
 
         match data.event.tier:
             case "1000":
@@ -111,7 +117,7 @@ class TwitchHandler:
             json={
                 "username": data.event.user_name,
                 "tier": tier,
-                "id" : data.subscription.id
+                "id": data.subscription.id,
             },
         )
 
@@ -124,7 +130,9 @@ class TwitchHandler:
         )
         print(data.event)
         print("-" * 100)
-        write_log(f"{data.event.user_name} cheered {data.event.bits} bits to {data.event.broadcaster_user_name}!")
+        write_log(
+            f"{data.event.user_name} cheered {data.event.bits} bits to {data.event.broadcaster_user_name}!"
+        )
 
         res = requests.post(
             f"{self.backend_URL}/api/timer/bits/",
@@ -132,7 +140,7 @@ class TwitchHandler:
             json={
                 "username": data.event.user_name,
                 "bits": data.event.bits,
-                "id": data.subscription.id
+                "id": data.subscription.id,
             },
         )
 
@@ -144,7 +152,7 @@ class TwitchHandler:
                 json={
                     "username": data.event.user_name,
                     "bits": data.event.bits,
-                    "id": data.subscription.id
+                    "id": data.subscription.id,
                 },
             )
 
@@ -157,7 +165,6 @@ class TwitchHandler:
 
         for s in json.loads(self.twich_access_json["scope"].replace("'", '"')):
             scope.append(AuthScope(s))
-
 
         await twitch.set_user_authentication(
             token=self.twich_access_json["access_token"],
@@ -182,7 +189,6 @@ class TwitchHandler:
         # await eventsub.listen_channel_subscription_gift(user.id, self.on_subscription)
         # await eventsub.listen_channel_cheer(user.id, self.on_cheer)
 
-
         # eventsub will run in its own process
         # so lets just wait for user input before shutting it all down again
         try:
@@ -195,4 +201,3 @@ class TwitchHandler:
             await eventsub.stop()
             await twitch.close()
 
-    
