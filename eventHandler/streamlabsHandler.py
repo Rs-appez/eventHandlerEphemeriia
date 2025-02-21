@@ -9,7 +9,8 @@ class StreamlabsHandler:
     def __init__(self):
         self.app_id = config("STREAMLABS_CLIENT_ID")
         self.app_secret = config("STREAMLABS_CLIENT_SECRET")
-        self.backend_URL = f"{config('BACKEND_URL')}/timer"
+        self.backend_URL = f"{config('BACKEND_URL')}"
+        self.timer_URL = f"{self.backend_URL}timer/api/timer"
         self.token = config("BACKEND_TOKEN")
 
         self.streamlabs_access_json = self.get_streamlabs_auth()
@@ -37,7 +38,7 @@ class StreamlabsHandler:
         write_log(f"{name} donated {amount}!")
 
         res = requests.post(
-            f"{self.backend_URL}/api/timer/donation/",
+            f"{self.timer_URL}/donation/",
             json={"name": name, "amount": amount, "id": id},
             headers={"Authorization": self.token},
         )
@@ -45,7 +46,7 @@ class StreamlabsHandler:
         # if the request is not successful, retry
         if res.status_code != 200 and res.status_code != 400:
             res = requests.post(
-                f"{self.backend_URL}/api/timer/donation/",
+                f"{self.timer_URL}/donation/",
                 json={"name": name, "amount": amount, "id": id},
                 headers={"Authorization": self.token},
             )
@@ -75,7 +76,7 @@ class StreamlabsHandler:
         print("-" * 100)
 
         res = requests.post(
-            f"{self.backend_URL}/api/timer/sub/",
+            f"{self.timer_URL}/sub/",
             headers={"Authorization": self.token},
             json={"username": name, "tier": tier, "id": id, "gifter": gifter},
         )
@@ -83,7 +84,7 @@ class StreamlabsHandler:
         # if the request is not successful, retry
         if res.status_code != 200 and res.status_code != 400:
             res = requests.post(
-                f"{self.backend_URL}/api/timer/sub/",
+                f"{self.timer_URL}/sub/",
                 headers={"Authorization": self.token},
                 json={"username": name, "tier": tier,
                       "id": id, "gifter": gifter},
@@ -99,7 +100,7 @@ class StreamlabsHandler:
         write_log(f"{name} cheered {amount} bits!")
 
         res = requests.post(
-            f"{self.backend_URL}/api/timer/bits/",
+            f"{self.timer_URL}/bits/",
             headers={"Authorization": self.token},
             json={"username": name, "bits": amount, "id": id},
         )
@@ -107,7 +108,7 @@ class StreamlabsHandler:
         # if the request is not successful, retry
         if res.status_code != 200 and res.status_code != 400:
             res = requests.post(
-                f"{self.backend_URL}/api/timer/bits/",
+                f"{self.timer_URL}/bits/",
                 headers={"Authorization": self.token},
                 json={"username": name, "bits": amount, "id": id},
             )
