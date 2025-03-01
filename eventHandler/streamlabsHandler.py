@@ -10,7 +10,7 @@ class StreamlabsHandler:
         self.app_id = config("STREAMLABS_CLIENT_ID")
         self.app_secret = config("STREAMLABS_CLIENT_SECRET")
         self.backend_URL = f"{config('BACKEND_URL')}"
-        self.timer_URL = f"{self.backend_URL}timer/api/timer"
+        self.timer_URL = f"{self.backend_URL}/timer/api/timer"
         self.token = config("BACKEND_TOKEN")
 
         self.streamlabs_access_json = self.get_streamlabs_auth()
