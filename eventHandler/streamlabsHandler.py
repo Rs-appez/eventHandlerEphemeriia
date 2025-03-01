@@ -71,7 +71,12 @@ class StreamlabsHandler:
                 print("Prime")
                 tier = 1
 
+        message = f"\n{name} subscribed with tier {tier}"
+        if gifter:
+            message += f" from {gifter}"
+        print(message)
         print("-" * 100)
+        write_log(message)
 
         res = requests.post(
             f"{self.timer_URL}/sub/",
