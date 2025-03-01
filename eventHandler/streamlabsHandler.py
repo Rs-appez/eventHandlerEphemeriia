@@ -32,7 +32,7 @@ class StreamlabsHandler:
         name = data["message"][0]["from"]
         amount = data["message"][0]["amount"]
         id = data["event_id"]
-        # our event happend, lets do things with the data we got!
+
         print(f"\n{name} donated {amount}")
         print("-" * 100)
         write_log(f"{name} donated {amount}!")
@@ -52,8 +52,6 @@ class StreamlabsHandler:
             )
 
     def on_subscription(self, data):
-        # our event happend, lets do things with the data we got!
-
         name = data["message"][0]["name"]
         tier_plan = data["message"][0]["sub_plan"]
         id = data["message"][0]["_id"]
@@ -86,8 +84,7 @@ class StreamlabsHandler:
             res = requests.post(
                 f"{self.timer_URL}/sub/",
                 headers={"Authorization": self.token},
-                json={"username": name, "tier": tier,
-                      "id": id, "gifter": gifter},
+                json={"username": name, "tier": tier, "id": id, "gifter": gifter},
             )
 
     def on_cheer(self, data):
