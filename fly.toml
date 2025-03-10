@@ -18,7 +18,7 @@ primary_region = 'ams'
 
 [[vm]]
   size = 'shared-cpu-1x'
-  memory_mb = 512
+  memory_mb = 256
 
 [mounts]
 source="log_volume"
