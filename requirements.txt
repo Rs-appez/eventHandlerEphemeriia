@@ -7,7 +7,7 @@ bidict==0.23.1
 certifi==2025.1.31
 charset-normalizer==3.4.1
 frozenlist==1.6.0
-h11==0.14.0
+h11==0.16.0
 idna==3.10
 multidict==6.4.3
 python-dateutil==2.9.0.post0
