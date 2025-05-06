@@ -5,7 +5,7 @@ async-timeout==5.0.1
 attrs==25.3.0
 bidict==0.23.1
 certifi==2025.4.26
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
 frozenlist==1.6.0
 h11==0.16.0
 idna==3.10
