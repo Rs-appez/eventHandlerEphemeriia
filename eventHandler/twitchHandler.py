@@ -1,8 +1,5 @@
 from twitchAPI.twitch import Twitch
-from twitchAPI.object.eventsub import (
-    ChannelFollowEvent,
-    ChannelPredictionEvent
-)
+from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelPredictionEvent
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.helper import first
 from twitchAPI.type import AuthScope
@@ -40,11 +37,13 @@ class TwitchHandler:
             f"\n{data.event.user_name} now follows {data.event.broadcaster_user_name}!"
         )
         print("-" * 100)
-        write_log(f"{data.event.user_name} now follows {data.event.broadcaster_user_name}!")
+        write_log(
+            f"{data.event.user_name} now follows {data.event.broadcaster_user_name}!"
+        )
 
     async def on_prediction_start(self, data: ChannelPredictionEvent):
         # our event happend, lets do things with the data we got!
- 
+
         write_log(f"Predi start! {data.event.to_dict(True)}!")
 
     async def run(self):
@@ -56,7 +55,6 @@ class TwitchHandler:
 
         for s in json.loads(self.twich_access_json["scope"].replace("'", '"')):
             scope.append(AuthScope(s))
-
 
         await twitch.set_user_authentication(
             token=self.twich_access_json["access_token"],
@@ -76,8 +74,9 @@ class TwitchHandler:
         # the broadcaster is a moderator in their own channel by default so specifying both as the same works in this example
         # We have to subscribe to the first topic within 10 seconds of eventsub.start() to not be disconnected.
         await eventsub.listen_channel_follow_v2(user.id, user.id, self.on_follow)
-        await eventsub.listen_channel_prediction_begin(user.id, self.on_prediction_start)
-        
+        await eventsub.listen_channel_prediction_begin(
+            user.id, self.on_prediction_start
+        )
 
         # eventsub will run in its own process
         # so lets just wait for user input before shutting it all down again
@@ -91,4 +90,3 @@ class TwitchHandler:
             await eventsub.stop()
             await twitch.close()
 
-    
