@@ -42,9 +42,14 @@ class TwitchHandler:
         )
 
     async def on_prediction_start(self, data: ChannelPredictionEvent):
-        # our event happend, lets do things with the data we got!
 
         write_log(f"Predi start! {data.event.to_dict(True)}!")
+
+    async def on_prediction_end(self, data: ChannelPredictionEvent):
+
+        write_log(f"Predi end! {data.event.to_dict(True)}!")
+
+
 
     async def run(self):
         print("Starting...")
@@ -77,6 +82,7 @@ class TwitchHandler:
         await eventsub.listen_channel_prediction_begin(
             user.id, self.on_prediction_start
         )
+        await eventsub.listen
 
         # eventsub will run in its own process
         # so lets just wait for user input before shutting it all down again
