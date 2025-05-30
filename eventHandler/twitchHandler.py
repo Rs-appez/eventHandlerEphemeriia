@@ -1,5 +1,9 @@
 from twitchAPI.twitch import Twitch
-from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelPredictionEvent
+from twitchAPI.object.eventsub import (
+    ChannelFollowEvent,
+    ChannelPredictionEvent,
+    ChannelPointsCustomRewardRedemptionAddEvent,
+)
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.helper import first
 from twitchAPI.type import AuthScope
@@ -42,14 +46,15 @@ class TwitchHandler:
         )
 
     async def on_prediction_start(self, data: ChannelPredictionEvent):
-
         write_log(f"Predi start! {data.event.to_dict(True)}!")
 
     async def on_prediction_end(self, data: ChannelPredictionEvent):
-
         write_log(f"Predi end! {data.event.to_dict(True)}!")
 
-
+    async def on_reward(
+        self, data: ChannelPointsCustomRewardRedemptionAddEvent
+    ):
+        print(f"Redemption: {data.to_dict(True)}")
 
     async def run(self):
         print("Starting...")
@@ -82,7 +87,9 @@ class TwitchHandler:
         await eventsub.listen_channel_prediction_begin(
             user.id, self.on_prediction_start
         )
-        await eventsub.listen
+        await eventsub.listen_channel_points_custom_reward_redemption_add(
+            user.id, self.on_reward
+        )
 
         # eventsub will run in its own process
         # so lets just wait for user input before shutting it all down again
