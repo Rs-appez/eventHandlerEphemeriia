@@ -1,9 +1,9 @@
-
 from decouple import config
 import requests
 import socketio
 
 from utils import write_log
+
 
 class StreamlabsHandler:
     def __init__(self):
@@ -16,7 +16,6 @@ class StreamlabsHandler:
 
         self.streamlab_url_socket = f"wss://sockets.streamlabs.com?token={self.streamlabs_access_json['socket_token']}"
 
-                
     def get_streamlabs_auth(self):
         res = requests.get(
             f"{self.backend_URL}/oauth/api/auth/streamlabs/first",
@@ -27,49 +26,37 @@ class StreamlabsHandler:
 
         else:
             return None
-        
 
     def on_donation(self, data):
-        name = data['message'][0]['from']
-        amount = data['message'][0]['amount']
-        id = data['event_id']
+        name = data["message"][0]["from"]
+        amount = data["message"][0]["amount"]
+        id = data["event_id"]
         # our event happend, lets do things with the data we got!
-        print(
-            f"\n{name} donated {amount}"
-        )
+        print(f"\n{name} donated {amount}")
         print("-" * 100)
         write_log(f"{name} donated {amount}!")
 
         res = requests.post(
             f"{self.backend_URL}/api/timer/donation/",
-            json={
-                "name": name,
-                "amount": amount,
-                "id": id
-            },
+            json={"name": name, "amount": amount, "id": id},
             headers={"Authorization": self.token},
         )
-        
+
         # if the request is not successful, retry
         if res.status_code != 200 and res.status_code != 400:
             res = requests.post(
-            f"{self.backend_URL}/api/timer/donation/",
-            json={
-                "name": name,
-                "amount": amount,
-                "id": id
-            },
-            headers={"Authorization": self.token},
+                f"{self.backend_URL}/api/timer/donation/",
+                json={"name": name, "amount": amount, "id": id},
+                headers={"Authorization": self.token},
             )
 
-    def on_subscription(self, data ):
+    def on_subscription(self, data):
         # our event happend, lets do things with the data we got!
 
-        name = data['message'][0]['name']
-        tier_plan = data['message'][0]['sub_plan']
-        id = data['message'][0]['_id']
-        gifter = data['message'][0]['gifter'] if 'gifter' in data['message'][0] else ""
-
+        name = data["message"][0]["name"]
+        tier_plan = data["message"][0]["sub_plan"]
+        id = data["message"][0]["_id"]
+        gifter = data["message"][0]["gifter"] if "gifter" in data["message"][0] else ""
 
         match tier_plan:
             case "1000":
@@ -90,12 +77,7 @@ class StreamlabsHandler:
         res = requests.post(
             f"{self.backend_URL}/api/timer/sub/",
             headers={"Authorization": self.token},
-            json={
-                "username": name,
-                "tier": tier,
-                "id" : id,
-                "gifter": gifter
-            },
+            json={"username": name, "tier": tier, "id": id, "gifter": gifter},
         )
 
         # if the request is not successful, retry
@@ -103,33 +85,23 @@ class StreamlabsHandler:
             res = requests.post(
                 f"{self.backend_URL}/api/timer/sub/",
                 headers={"Authorization": self.token},
-                json={
-                    "username": name,
-                    "tier": tier,
-                    "id" : id,
-                    "gifter": gifter
-                },
+                json={"username": name, "tier": tier,
+                      "id": id, "gifter": gifter},
             )
 
     def on_cheer(self, data):
-        name = data['message'][0]['name']
-        amount = data['message'][0]['amount']
-        id = data['message'][0]['_id']
+        name = data["message"][0]["name"]
+        amount = data["message"][0]["amount"]
+        id = data["message"][0]["_id"]
 
-        print(
-            f"\n{name} cheered {amount} bits!"
-        )
+        print(f"\n{name} cheered {amount} bits!")
         print("-" * 100)
         write_log(f"{name} cheered {amount} bits!")
 
         res = requests.post(
             f"{self.backend_URL}/api/timer/bits/",
             headers={"Authorization": self.token},
-            json={
-                "username": name,
-                "bits": amount,
-                "id": id
-            },
+            json={"username": name, "bits": amount, "id": id},
         )
 
         # if the request is not successful, retry
@@ -137,38 +109,33 @@ class StreamlabsHandler:
             res = requests.post(
                 f"{self.backend_URL}/api/timer/bits/",
                 headers={"Authorization": self.token},
-                json={
-                    "username": name,
-                    "bits": amount,
-                    "id": id
-                },
+                json={"username": name, "bits": amount, "id": id},
             )
-               
+
     async def run(self):
         sio = socketio.Client()
 
         @sio.event
         def connect():
             print("I'm connected!")
-        
+
         @sio.event
         def connect_error(data):
             print("The connection failed!")
-        
+
         @sio.event
         def disconnect():
             print("I'm disconnected!")
-        
-        @sio.on('event')
+
+        @sio.on("event")
         def on_event(data):
-            if data['type'] == 'donation':
+            if data["type"] == "donation":
                 self.on_donation(data)
 
-            if data['type'] == 'subscription':
+            if data["type"] == "subscription":
                 self.on_subscription(data)
 
-            if data['type'] == 'bits':
+            if data["type"] == "bits":
                 self.on_cheer(data)
 
-        sio.connect(self.streamlab_url_socket, transports='websocket')
-
+        sio.connect(self.streamlab_url_socket, transports="websocket")
