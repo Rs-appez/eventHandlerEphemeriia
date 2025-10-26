@@ -11,6 +11,7 @@ class StreamlabsHandler:
         self.app_secret = config("STREAMLABS_CLIENT_SECRET")
         self.backend_URL = f"{config('BACKEND_URL')}"
         self.timer_URL = f"{self.backend_URL}/timer/api/timer"
+        self.goal_URL = f"{self.backend_URL}/goal/api/campaigns"
         self.token = config("BACKEND_TOKEN")
 
         self.streamlabs_access_json = self.get_streamlabs_auth()
@@ -48,6 +49,19 @@ class StreamlabsHandler:
             res = requests.post(
                 f"{self.timer_URL}/donation/",
                 json={"name": name, "amount": amount, "id": id},
+                headers={"Authorization": self.token},
+            )
+
+        res = requests.post(
+            f"{self.goal_URL}/update_progess/",
+            json={"amount": amount, "id": id},
+            headers={"Authorization": self.token},
+        )
+
+        if res.status_code != 200 and res.status_code != 400:
+            res = requests.post(
+                f"{self.goal_URL}/update_progess/",
+                json={"amount": amount, "id": id},
                 headers={"Authorization": self.token},
             )
 
