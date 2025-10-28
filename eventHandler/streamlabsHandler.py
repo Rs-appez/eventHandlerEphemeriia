@@ -53,14 +53,14 @@ class StreamlabsHandler:
             )
 
         res = requests.post(
-            f"{self.goal_URL}/update_progess/",
+            f"{self.goal_URL}/update_progress/",
             json={"amount": amount, "id": id},
             headers={"Authorization": self.token},
         )
 
         if res.status_code != 200 and res.status_code != 400:
             res = requests.post(
-                f"{self.goal_URL}/update_progess/",
+                f"{self.goal_URL}/update_progress/",
                 json={"amount": amount, "id": id},
                 headers={"Authorization": self.token},
             )
