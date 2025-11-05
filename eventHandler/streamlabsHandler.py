@@ -52,18 +52,7 @@ class StreamlabsHandler:
                 headers={"Authorization": self.token},
             )
 
-        res = requests.post(
-            f"{self.goal_URL}/update_progress/",
-            json={"amount": amount, "id": id},
-            headers={"Authorization": self.token},
-        )
-
-        if res.status_code != 200 and res.status_code != 400:
-            res = requests.post(
-                f"{self.goal_URL}/update_progress/",
-                json={"amount": amount, "id": id},
-                headers={"Authorization": self.token},
-            )
+        self.__update_campaign(amount, id, "donation")
 
     def on_subscription(self, data):
         name = data["message"][0]["name"]
@@ -105,6 +94,8 @@ class StreamlabsHandler:
                 headers={"Authorization": self.token},
                 json={"username": name, "tier": tier, "id": id, "gifter": gifter},
             )
+
+        self.__update_campaign(1, id, "sub")
 
     def on_cheer(self, data):
         name = data["message"][0]["name"]
@@ -156,3 +147,17 @@ class StreamlabsHandler:
                 self.on_cheer(data)
 
         sio.connect(self.streamlab_url_socket, transports="websocket")
+
+    def __update_campaign(self, amount, id, type):
+        res = requests.post(
+            f"{self.goal_URL}/update_progress/",
+            json={"amount": amount, "id": id, "type": type},
+            headers={"Authorization": self.token},
+        )
+
+        if res.status_code != 200 and res.status_code != 400:
+            res = requests.post(
+                f"{self.goal_URL}/update_progress/",
+                json={"amount": amount, "id": id, "type": type},
+                headers={"Authorization": self.token},
+            )
