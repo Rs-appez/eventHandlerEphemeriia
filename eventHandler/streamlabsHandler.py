@@ -1,11 +1,26 @@
 from decouple import config
 import requests
+import httpx
 import socketio
 
 from utils import write_log
 
 
 class StreamlabsHandler:
+    _client = None
+
+    @classmethod
+    async def get_client(cls):
+        if cls._client is None:
+            cls._client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
+        return cls._client
+
+    @classmethod
+    async def close_client(cls):
+        if cls._client is not None:
+            await cls._client.aclose()
+            cls._client = None
+
     def __init__(self):
         self.app_id = config("STREAMLABS_CLIENT_ID")
         self.app_secret = config("STREAMLABS_CLIENT_SECRET")
@@ -29,7 +44,7 @@ class StreamlabsHandler:
         else:
             return None
 
-    def on_donation(self, data):
+    async def on_donation(self, data):
         name = data["message"][0]["from"]
         amount = data["message"][0]["amount"]
         id = data["event_id"]
@@ -38,23 +53,20 @@ class StreamlabsHandler:
         print("-" * 100)
         write_log(f"{name} donated {amount}!")
 
-        res = requests.post(
+        client = await self.get_client()
+
+        res = await client.post(
             f"{self.timer_URL}/donation/",
             json={"name": name, "amount": amount, "id": id},
             headers={"Authorization": self.token},
         )
 
-        # if the request is not successful, retry
-        if res.status_code != 200 and res.status_code != 400:
-            res = requests.post(
-                f"{self.timer_URL}/donation/",
-                json={"name": name, "amount": amount, "id": id},
-                headers={"Authorization": self.token},
-            )
+        write_log(f"Response status code: {res.status_code}")
+        write_log(f"Response content: {res.content}")
 
-        self.__update_campaign(amount, id, "donation")
+        # self.__update_campaign(amount, id, "donation")
 
-    def on_subscription(self, data):
+    async def on_subscription(self, data):
         name = data["message"][0]["name"]
         tier_plan = data["message"][0]["sub_plan"]
         id = data["message"][0]["_id"]
@@ -81,7 +93,9 @@ class StreamlabsHandler:
         print("-" * 100)
         write_log(message)
 
-        res = requests.post(
+        client = await self.get_client()
+
+        res = await client.post(
             f"{self.timer_URL}/sub/",
             headers={"Authorization": self.token},
             json={"username": name, "tier": tier, "id": id, "gifter": gifter},
@@ -90,18 +104,9 @@ class StreamlabsHandler:
         write_log(f"Response status code: {res.status_code}")
         write_log(f"Response content: {res.content}")
 
+        # self.__update_campaign(1, id, "sub")
 
-        # if the request is not successful, retry
-        if res.status_code != 200 and res.status_code != 400:
-            res = requests.post(
-                f"{self.timer_URL}/sub/",
-                headers={"Authorization": self.token},
-                json={"username": name, "tier": tier, "id": id, "gifter": gifter},
-            )
-
-        self.__update_campaign(1, id, "sub")
-
-    def on_cheer(self, data):
+    async def on_cheer(self, data):
         name = data["message"][0]["name"]
         amount = data["message"][0]["amount"]
         id = data["message"][0]["_id"]
@@ -110,58 +115,62 @@ class StreamlabsHandler:
         print("-" * 100)
         write_log(f"{name} cheered {amount} bits!")
 
-        res = requests.post(
+        client = await self.get_client()
+
+        res = await client.post(
             f"{self.timer_URL}/bits/",
             headers={"Authorization": self.token},
             json={"username": name, "bits": amount, "id": id},
         )
 
-        # if the request is not successful, retry
-        if res.status_code != 200 and res.status_code != 400:
-            res = requests.post(
-                f"{self.timer_URL}/bits/",
-                headers={"Authorization": self.token},
-                json={"username": name, "bits": amount, "id": id},
-            )
+        write_log(f"Response status code: {res.status_code}")
+        write_log(f"Response content: {res.content}")
 
     async def run(self):
-        sio = socketio.Client()
+        sio = socketio.AsyncClient()
 
         @sio.event
-        def connect():
+        async def connect():
             print("I'm connected!")
 
         @sio.event
-        def connect_error(data):
+        async def connect_error(data):
             print("The connection failed!")
 
         @sio.event
-        def disconnect():
+        async def disconnect():
             print("I'm disconnected!")
 
         @sio.on("event")
-        def on_event(data):
+        async def on_event(data):
+            print("data type : ", data["type"])
             if data["type"] == "donation":
-                self.on_donation(data)
+                await self.on_donation(data)
 
             if data["type"] == "subscription":
-                self.on_subscription(data)
+                await self.on_subscription(data)
 
             if data["type"] == "bits":
-                self.on_cheer(data)
+                await self.on_cheer(data)
 
-        sio.connect(self.streamlab_url_socket, transports="websocket")
+        @sio.on("*")
+        async def catch_all(event, data):
+            print(f"Catch-all - Event: {event}, Data: {data}")
+            write_log(f"Catch-all - Event: {event}, Data: {data}")
 
-    def __update_campaign(self, amount, id, type):
-        res = requests.post(
-            f"{self.goal_URL}/update_progress/",
-            json={"amount": amount, "id": id, "type": type},
-            headers={"Authorization": self.token},
-        )
+        await sio.connect(self.streamlab_url_socket, transports=["websocket"])
+        await sio.wait()
 
-        if res.status_code != 200 and res.status_code != 400:
-            res = requests.post(
-                f"{self.goal_URL}/update_progress/",
-                json={"amount": amount, "id": id, "type": type},
-                headers={"Authorization": self.token},
-            )
+    # def __update_campaign(self, amount, id, type):
+    #     res = requests.post(
+    #         f"{self.goal_URL}/update_progress/",
+    #         json={"amount": amount, "id": id, "type": type},
+    #         headers={"Authorization": self.token},
+    #     )
+    #
+    #     if res.status_code != 200 and res.status_code != 400:
+    #         res = requests.post(
+    #             f"{self.goal_URL}/update_progress/",
+    #             json={"amount": amount, "id": id, "type": type},
+    #             headers={"Authorization": self.token},
+    #         )
