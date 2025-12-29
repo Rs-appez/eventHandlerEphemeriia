@@ -87,6 +87,10 @@ class StreamlabsHandler:
             json={"username": name, "tier": tier, "id": id, "gifter": gifter},
         )
 
+        write_log(f"Response status code: {res.status_code}")
+        write_log(f"Response content: {res.content}")
+
+
         # if the request is not successful, retry
         if res.status_code != 200 and res.status_code != 400:
             res = requests.post(
