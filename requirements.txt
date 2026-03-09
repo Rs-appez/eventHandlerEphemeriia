@@ -6,7 +6,7 @@ async-timeout==5.0.1
 attrs==25.4.0
 bidict==0.23.1
 certifi==2026.2.25
-charset-normalizer==3.4.4
+charset-normalizer==3.4.5
 enum-tools==0.13.0
 frozenlist==1.8.0
 h11==0.16.0
