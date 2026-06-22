@@ -5,7 +5,7 @@ anyio==4.14.0
 async-timeout==5.0.1
 attrs==26.1.0
 bidict==0.23.1
-certifi==2026.5.20
+certifi==2026.6.17
 charset-normalizer==3.4.7
 enum-tools==0.13.0
 frozenlist==1.8.0
@@ -18,7 +18,7 @@ propcache==0.5.2
 Pygments==2.20.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
-python-engineio==4.13.2
+python-engineio==4.13.3
 python-socketio==5.16.3
 requests==2.34.2
 simple-websocket==1.1.0
