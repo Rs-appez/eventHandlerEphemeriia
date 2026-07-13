@@ -1,12 +1,12 @@
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.1
 aiosignal==1.4.0
-anyio==4.14.1
+anyio==4.14.2
 async-timeout==5.0.1
 attrs==26.1.0
 bidict==0.23.1
 certifi==2026.6.17
-charset-normalizer==3.4.8
+charset-normalizer==3.4.9
 enum-tools==0.13.0
 frozenlist==1.8.0
 h11==0.16.0
