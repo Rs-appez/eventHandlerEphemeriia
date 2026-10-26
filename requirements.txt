@@ -5,7 +5,7 @@ anyio==4.15.1
 async-timeout==5.0.1
 attrs==26.1.0
 bidict==0.24.1
-certifi==2026.10.19
+certifi==2026.10.23
 charset-normalizer==3.5.2
 enum-tools==0.13.0
 frozenlist==1.8.0
@@ -16,7 +16,7 @@ idna==3.20
 multidict==7.1.0
 propcache==0.5.4
 Pygments==2.21.0
-python-dateutil==2.9.0.post0
+python-dateutil==3.0.0
 python-decouple==3.8
 python-engineio==4.14.0
 python-socketio==5.17.0
